@@ -41,10 +41,12 @@ jobs:
 
       - name: 7. Biên dịch APK Debug V1.3 (Kèm Google Maven Mirror)
         run: |
+          sed -i 's/compileSdkVersion = [0-9]*/compileSdkVersion = 35/g' android/variables.gradle
+          sed -i 's/targetSdkVersion = [0-9]*/targetSdkVersion = 35/g' android/variables.gradle
           cd android
           chmod +x gradlew
-          ./gradlew assembleDebug --no-daemon --stacktrace
-
+          ./gradlew assembleDebug
+ 
       - name: 8. Xuất file APK hoàn chỉnh
         uses: actions/upload-artifact@v4
         with:
