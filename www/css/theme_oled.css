@@ -1,0 +1,178 @@
+/* ============================================================================
+   THEME_OLED.CSS - Nền đen OLED tuyệt đối (#000) + Khung Dark Pixel/Neon
+   ============================================================================ */
+:root {
+  --bg-oled: #000000;
+  --bg-panel: #05080f;
+  --bg-card: #0b1120;
+  --border-dim: #1e293b;
+  --cyan: #00f0ff;
+  --green: #00e676;
+  --amber: #ffb800;
+  --rose: #ff4d6d;
+  --purple: #a855f7;
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+}
+
+* {
+  box-sizing: border-box;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  background-color: var(--bg-oled);
+  color: var(--text-main);
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* Vùng chạm ẩn 5 lần góc trên trái để thoát Kiosk */
+#secretKioskZone {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 56px;
+  height: 56px;
+  z-index: 9999;
+}
+
+/* Thanh HUD trạng thái gọn góc trên bên trái */
+.hud-left {
+  position: fixed;
+  top: 10px;
+  left: 12px;
+  z-index: 100;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.hud-chip {
+  background: rgba(5, 8, 15, 0.85);
+  border: 1px solid var(--border-dim);
+  border-radius: 99px;
+  padding: 5px 11px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.hud-cyan { border-color: rgba(0, 240, 255, 0.45); color: var(--cyan); }
+.hud-amber { border-color: rgba(255, 184, 0, 0.45); color: var(--amber); cursor: pointer; }
+.hud-green { border-color: rgba(0, 230, 118, 0.5); color: var(--green); }
+
+/* THANH 6 ICON CỐ ĐỊNH GÓC TRÊN BÊN PHẢI */
+.top-icon-bar {
+  position: fixed;
+  top: 8px;
+  right: 10px;
+  z-index: 500;
+  display: flex;
+  gap: 6px;
+  background: rgba(5, 8, 15, 0.9);
+  border: 1px solid rgba(0, 240, 255, 0.35);
+  border-radius: 14px;
+  padding: 4px 6px;
+  backdrop-filter: blur(6px);
+  transition: opacity 0.35s ease;
+}
+
+/* Làm mờ nhẹ khi đang xem YouTube/Game để không che khung hình */
+.top-icon-bar.dimmed {
+  opacity: 0.35;
+}
+.top-icon-bar.dimmed:hover,
+.top-icon-bar.dimmed:active {
+  opacity: 1;
+}
+
+.nav-icon-btn {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 50px;
+  height: 44px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 2px 6px;
+  transition: all 0.18s ease;
+}
+
+.nav-icon-btn .ico {
+  font-size: 18px;
+  line-height: 1.1;
+}
+
+.nav-icon-btn .lbl {
+  font-size: 10px;
+  font-weight: 600;
+  margin-top: 2px;
+}
+
+.nav-icon-btn.active {
+  background: rgba(0, 240, 255, 0.14);
+  border-color: var(--cyan);
+  color: var(--cyan);
+  box-shadow: 0 0 10px rgba(0, 240, 255, 0.25);
+}
+
+.nav-icon-btn.locked-tab {
+  opacity: 0.6;
+}
+
+.lock-badge {
+  position: absolute;
+  top: 1px;
+  right: 2px;
+  font-size: 10px;
+}
+
+/* KIẾN TRÚC CHUYỂN TRANG ĐƠN LỚP (SINGLE-LAYER VIEW) */
+.view-screen {
+  display: none;
+  width: 100vw;
+  height: 100vh;
+  background: var(--bg-oled);
+  padding-top: 62px;
+}
+
+.view-screen.active {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Nút bấm Neon chuẩn giao diện Robot */
+.btn-neon {
+  border: 1px solid var(--cyan);
+  background: rgba(0, 240, 255, 0.1);
+  color: var(--cyan);
+  padding: 9px 14px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.1s ease, background 0.2s ease;
+}
+
+.btn-neon:active { transform: scale(0.96); }
+.btn-cyan { border-color: var(--cyan); color: var(--cyan); background: rgba(0, 240, 255, 0.12); }
+.btn-green { border-color: var(--green); color: var(--green); background: rgba(0, 230, 118, 0.12); }
+.btn-amber { border-color: var(--amber); color: var(--amber); background: rgba(255, 184, 0, 0.12); }
+.btn-rose { border-color: var(--rose); color: var(--rose); background: rgba(255, 77, 109, 0.12); }
+.btn-purple { border-color: var(--purple); color: var(--purple); background: rgba(168, 85, 247, 0.12); }

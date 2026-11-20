@@ -1,0 +1,22 @@
+{
+  "appId": "com.robot2027.companion",
+  "appName": "Robot 2027",
+  "webDir": "www",
+  "bundledWebRuntime": false,
+  "server": {
+    "androidScheme": "https",
+    "cleartext": true,
+    "allowNavigation": [
+      "khotrithucso.io.vn",
+      "*.khotrithucso.io.vn",
+      "*.youtube.com",
+      "*.googlevideo.com",
+      "tatoeba.org",
+      "*.tatoeba.org"
+    ]
+  },
+  "android": {
+    "allowMixedContent": true,
+    "backgroundColor": "#000000"
+  }
+}

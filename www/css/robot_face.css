@@ -1,0 +1,371 @@
+/* ============================================================================
+   ROBOT_FACE.CSS - Đôi mắt OLED phát sáng, biểu cảm, miệng & phụ đề Karaoke
+   ============================================================================ */
+.robot-stage {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 20px 14px 20px;
+  width: 100%;
+  height: 100%;
+}
+
+/* Khu vực khuôn mặt nửa trên */
+.robot-face-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  width: 100%;
+  transition: transform 0.35s ease;
+}
+
+.eyes-row {
+  display: flex;
+  gap: 88px;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.6s ease;
+}
+
+.eye {
+  position: relative;
+  width: 118px;
+  height: 86px;
+  border-radius: 36px;
+  background: var(--cyan);
+  box-shadow: 0 0 28px rgba(0, 240, 255, 0.65), inset 0 0 12px rgba(255, 255, 255, 0.6);
+  overflow: hidden;
+  transition: all 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.eye .pupil {
+  position: absolute;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.85);
+  top: 16px;
+  left: 24px;
+  transition: transform 0.2s ease;
+}
+
+.eyelid-top, .eyelid-bottom {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 0%;
+  background: #000000;
+  transition: height 0.16s ease;
+}
+.eyelid-top { top: 0; }
+.eyelid-bottom { bottom: 0; }
+
+/* Nháy mắt tự nhiên */
+.eye.blinking .eyelid-top,
+.eye.blinking .eyelid-bottom {
+  height: 52%;
+}
+
+/* CÁC TRẠNG THÁI BIỂU CẢM ĐÔI MẮT */
+.robot-face-box.expr-LISTENING .eye {
+  background: #00ffd5;
+  transform: scale(1.08);
+  box-shadow: 0 0 36px rgba(0, 255, 213, 0.85);
+}
+
+.robot-face-box.expr-THINKING .eye {
+  background: var(--amber);
+  box-shadow: 0 0 28px rgba(255, 184, 0, 0.7);
+  height: 62px;
+}
+.robot-face-box.expr-THINKING .pupil {
+  transform: translate(36px, -4px);
+}
+
+.robot-face-box.expr-HAPPY .eye {
+  background: var(--green);
+  box-shadow: 0 0 34px rgba(0, 230, 118, 0.8);
+  border-radius: 60px 60px 16px 16px;
+  height: 64px;
+}
+.robot-face-box.expr-HAPPY .eyelid-bottom {
+  height: 36%;
+  border-radius: 50% 50% 0 0;
+}
+
+.robot-face-box.expr-RETRY .eye {
+  background: #ff9f43;
+  box-shadow: 0 0 26px rgba(255, 159, 67, 0.65);
+  height: 74px;
+}
+
+.robot-face-box.expr-DIZZY .left-eye {
+  background: var(--rose);
+  transform: rotate(-14deg) scale(1.05);
+}
+.robot-face-box.expr-DIZZY .right-eye {
+  background: var(--rose);
+  transform: rotate(14deg) scale(0.85);
+}
+
+.robot-face-box.expr-SLEEP .eye {
+  background: #1e3a5f;
+  box-shadow: none;
+  height: 12px;
+  border-radius: 12px;
+}
+
+/* Mũi & Miệng */
+.robot-nose {
+  width: 14px;
+  height: 8px;
+  border-radius: 8px;
+  background: rgba(0, 240, 255, 0.35);
+  margin-top: 10px;
+}
+
+.robot-mouth-wrap {
+  margin-top: 8px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.robot-mouth {
+  width: 54px;
+  height: 10px;
+  border-radius: 0 0 28px 28px;
+  border-bottom: 4px solid var(--cyan);
+  transition: all 0.12s ease;
+}
+
+.robot-mouth.speaking {
+  height: 20px;
+  border-radius: 16px;
+  background: rgba(0, 240, 255, 0.25);
+  border: 3px solid var(--cyan);
+  animation: mouthTalk 0.22s infinite alternate;
+}
+
+@keyframes mouthTalk {
+  from { transform: scaleY(0.65) scaleX(0.95); }
+  to { transform: scaleY(1.2) scaleX(1.08); }
+}
+
+/* Khi đang hiển thị câu học Karaoke, ẩn miệng để nhường trọn không gian chữ */
+.robot-stage.learning-active .robot-mouth-wrap {
+  display: none;
+}
+
+/* Thanh sóng âm & chữ nhận diện trực tiếp */
+.voice-wave-bar {
+  margin-top: 6px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 14px;
+  border-radius: 99px;
+  background: rgba(15, 23, 42, 0.75);
+  border: 1px solid rgba(0, 240, 255, 0.2);
+}
+
+.wave-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--cyan);
+  transition: transform 0.08s ease, background 0.2s ease;
+}
+
+.partial-text {
+  font-size: 13px;
+  color: #cbd5e1;
+  max-width: 68vw;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ============================================================================
+   KHUNG PHỤ ĐỀ KARAOKE NỬA DƯỚI MÀN HÌNH NGANG
+   ============================================================================ */
+.karaoke-panel {
+  width: 100%;
+  max-width: 980px;
+  background: var(--bg-panel);
+  border: 1px solid rgba(0, 240, 255, 0.35);
+  border-radius: 18px;
+  padding: 10px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 0 24px rgba(0, 240, 255, 0.08);
+}
+
+.topic-header-bar {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+}
+
+.topic-pill { color: var(--cyan); font-weight: 700; }
+.counter-pill { color: var(--text-muted); }
+.score-pill { color: var(--green); font-weight: 800; }
+
+/* Danh sách từng từ tiếng Anh cỡ lớn */
+.karaoke-words {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px 10px;
+  min-height: 44px;
+  align-items: center;
+  padding: 2px 4px;
+}
+
+.k-word {
+  font-size: clamp(22px, 3.2vw, 32px);
+  font-weight: 800;
+  color: #ffffff;
+  padding: 2px 8px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  border: 1px solid transparent;
+}
+
+.k-word:active {
+  transform: scale(0.94);
+  border-color: var(--cyan);
+}
+
+/* Hiệu ứng chạy chữ Karaoke */
+.k-word.active-read {
+  color: #000000;
+  background: var(--cyan);
+  box-shadow: 0 0 14px rgba(0, 240, 255, 0.8);
+  transform: scale(1.08);
+}
+
+/* Tô màu chấm điểm phát âm từng từ */
+.k-word.word-correct {
+  color: var(--green);
+  background: rgba(0, 230, 118, 0.12);
+  border-color: rgba(0, 230, 118, 0.4);
+}
+
+.k-word.word-wrong {
+  color: var(--rose);
+  background: rgba(255, 77, 109, 0.14);
+  border-color: rgba(255, 77, 109, 0.45);
+}
+
+.spelling-banner {
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: 2px;
+  color: var(--amber);
+  background: rgba(255, 184, 0, 0.12);
+  border: 1px solid rgba(255, 184, 0, 0.4);
+  padding: 3px 14px;
+  border-radius: 99px;
+}
+
+.vi-subtitle {
+  font-size: clamp(14px, 2vw, 17px);
+  color: #93c5fd;
+  text-align: center;
+}
+
+.spoken-feedback {
+  font-size: 12px;
+  color: #cbd5e1;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 3px 10px;
+  border-radius: 8px;
+}
+
+/* Hộp lựa chọn khi sai > 3 lần */
+.retry-choice-box {
+  width: 100%;
+  background: rgba(255, 184, 0, 0.1);
+  border: 1px solid var(--amber);
+  border-radius: 12px;
+  padding: 8px 12px;
+  text-align: center;
+}
+
+.retry-prompt {
+  margin: 0 0 6px 0;
+  font-size: 13px;
+  color: #fde68a;
+}
+
+.retry-actions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+}
+
+/* Thanh 5 nút điều khiển bài học */
+.lesson-controls {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 2px;
+}
+
+.ctrl-btn {
+  border: 1px solid var(--cyan);
+  background: rgba(0, 240, 255, 0.1);
+  color: var(--text-main);
+  padding: 8px 14px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.ctrl-btn:active { transform: scale(0.95); }
+.ctrl-btn.btn-green { border-color: var(--green); color: var(--green); background: rgba(0, 230, 118, 0.14); }
+.ctrl-btn.btn-purple { border-color: var(--purple); color: var(--purple); background: rgba(168, 85, 247, 0.14); }
+.ctrl-btn.btn-amber { border-color: var(--amber); color: var(--amber); background: rgba(255, 184, 0, 0.14); }
+.ctrl-btn.btn-skip { border-color: var(--rose); color: var(--rose); background: rgba(255, 77, 109, 0.14); }
+.ctrl-btn.locked {
+  opacity: 0.35;
+  border-color: #475569;
+  color: #64748b;
+  background: transparent;
+}
+
+/* Màn phủ Ngủ Giả OLED */
+.sleep-overlay {
+  position: fixed;
+  inset: 0;
+  background: #000000;
+  z-index: 400;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sleep-eyes {
+  color: #1e293b;
+  font-size: 18px;
+  font-weight: 700;
+  animation: sleepPulse 4s infinite ease-in-out;
+}
+
+@keyframes sleepPulse {
+  0%, 100% { transform: translate(0, 0); opacity: 0.45; }
+  50% { transform: translate(12px, -8px); opacity: 0.8; }
+}

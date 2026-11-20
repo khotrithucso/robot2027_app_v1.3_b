@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>Robot 2027 - Companion V1.3</title>
+  <link rel="stylesheet" href="css/theme_oled.css" />
+  <link rel="stylesheet" href="css/robot_face.css" />
+  <link rel="stylesheet" href="css/views_panels.css" />
+</head>
+<body>
+  <!-- Vùng chạm ẩn 5 lần góc trên trái để mở cổng thoát Kiosk cho Nhà sản xuất -->
+  <div id="secretKioskZone" title="Kiosk Guard"></div>
+
+  <!-- Thanh trạng thái siêu gọn góc trên trái (Tên Robot, Hồ sơ bé, Pin/Nhiệt độ) -->
+  <div id="topStatusHUD" class="hud-left">
+    <span id="hudRobotName" class="hud-chip hud-cyan">🤖 ROBO</span>
+    <span id="hudLearnerProfile" class="hud-chip hud-amber" onclick="window.AppRouter.openSettingsSub('profiles')">👤 Bé Bi • ⭐ <b id="hudStarsCount">0</b></span>
+    <span id="hudBattery" class="hud-chip">🔋 --%</span>
+    <span id="hudRewardTimer" class="hud-chip hud-green hidden">⏳ 10:00</span>
+  </div>
+
+  <!-- THANH 6 ICON CỐ ĐỊNH GÓC TRÊN BÊN PHẢI -->
+  <nav id="topRightNav" class="top-icon-bar" aria-label="Điều hướng chính">
+    <button class="nav-icon-btn" data-view="library" title="Sổ Học Tập">
+      <span class="ico">📖</span>
+      <span class="lbl">Sổ học</span>
+    </button>
+    <button class="nav-icon-btn active" data-view="robot" title="Robot Chính">
+      <span class="ico">🤖</span>
+      <span class="lbl">Robot</span>
+    </button>
+    <button class="nav-icon-btn" data-view="youtube" id="navBtnYoutube" title="YouTube Thiếu Nhi">
+      <span class="ico">▶️</span>
+      <span class="lbl">YouTube</span>
+      <span class="lock-badge" id="lockYoutube">🔒</span>
+    </button>
+    <button class="nav-icon-btn" data-view="game" id="navBtnGame" title="Trò Chơi">
+      <span class="ico">🎮</span>
+      <span class="lbl">Game</span>
+      <span class="lock-badge" id="lockGame">🔒</span>
+    </button>
+    <button class="nav-icon-btn" data-view="settings" title="Cài Đặt">
+      <span class="ico">⚙️</span>
+      <span class="lbl">Setting</span>
+    </button>
+    <button class="nav-icon-btn" data-view="guide" title="Hướng Dẫn Sử Dụng">
+      <span class="ico">❗</span>
+      <span class="lbl">Hướng dẫn</span>
+    </button>
+  </nav>
+
+  <!-- ===================================================================== -->
+  <!-- MÀN HÌNH 1: 🤖 ROBOT CHÍNH (KHUÔN MẶT OLED + KARAOKE + PHÁT ÂM)      -->
+  <!-- ===================================================================== -->
+  <main id="view-robot" class="view-screen active">
+    <div id="robotStage" class="robot-stage mode-face-full">
+      <!-- Khuôn mặt robot (Mắt - Mũi - Miệng) -->
+      <div id="robotFaceBox" class="robot-face-box">
+        <div class="eyes-row" id="eyesRow">
+          <div class="eye left-eye" id="leftEye">
+            <div class="pupil"></div>
+            <div class="eyelid-top"></div>
+            <div class="eyelid-bottom"></div>
+          </div>
+          <div class="eye right-eye" id="rightEye">
+            <div class="pupil"></div>
+            <div class="eyelid-top"></div>
+            <div class="eyelid-bottom"></div>
+          </div>
+        </div>
+
+        <!-- Mũi tối giản -->
+        <div class="robot-nose"></div>
+
+        <!-- Miệng hoạt hình (tự ẩn khi mở bảng Karaoke bài học) -->
+        <div class="robot-mouth-wrap" id="robotMouthWrap">
+          <div class="robot-mouth" id="robotMouth"></div>
+        </div>
+
+        <!-- Vòng sóng âm trực tiếp khi lắng nghe -->
+        <div class="voice-wave-bar" id="voiceWaveBar">
+          <span class="wave-dot"></span>
+          <span id="livePartialText" class="partial-text">Nói "Hello Robo" hoặc chạm để học...</span>
+        </div>
+      </div>
+
+      <!-- Khung học Tiếng Anh Karaoke nửa dưới / bên phải -->
+      <div id="karaokePanel" class="karaoke-panel">
+        <div class="topic-header-bar">
+          <span id="currentTopicBadge" class="topic-pill">📖 Chủ đề: Animals</span>
+          <span id="sentenceCounter" class="counter-pill">Câu 1 / 10</span>
+          <span id="pronounceScoreBadge" class="score-pill hidden">Điểm: 100%</span>
+        </div>
+
+        <!-- Câu tiếng Anh từng từ (Chạm từng từ để đánh vần R-A-B-B-I-T) -->
+        <div id="karaokeWordsBox" class="karaoke-words" aria-live="polite"></div>
+
+        <!-- Dòng hiển thị đánh vần khi chạm vào 1 từ -->
+        <div id="spellingBanner" class="spelling-banner hidden"></div>
+
+        <!-- Dòng dịch tiếng Việt (tự ẩn nếu câu chưa có vi) -->
+        <div id="vietnameseSub" class="vi-subtitle"></div>
+
+        <!-- Phản hồi giọng vừa nghe của bé -->
+        <div id="userSpokenFeedback" class="spoken-feedback hidden"></div>
+
+        <!-- Hộp thoại lựa chọn khi đọc sai > 3 lần -->
+        <div id="retryChoiceBox" class="retry-choice-box hidden">
+          <p class="retry-prompt">Câu này hơi khó một chút! Bạn muốn <b>học lại câu này từ đầu</b> hay <b>chuyển sang câu khác</b>?</p>
+          <div class="retry-actions">
+            <button class="btn-neon btn-cyan" onclick="window.LessonEngine.restartCurrentSentence()">🔄 Học lại từ đầu</button>
+            <button class="btn-neon btn-amber" onclick="window.LessonEngine.skipToNextSentence()">⏭️ Qua câu khác</button>
+          </div>
+        </div>
+
+        <!-- Thanh nút thao tác to rõ cho trẻ em -->
+        <div class="lesson-controls">
+          <button class="ctrl-btn btn-cyan" id="btnListenSample" onclick="window.LessonEngine.playCurrentAudio(false)">
+            🔊 Nghe lại
+          </button>
+          <button class="ctrl-btn btn-green" id="btnMicPractice" onclick="window.LessonEngine.startPracticeTurn()">
+            🎙️ Đọc lặp lại
+          </button>
+          <button class="ctrl-btn btn-purple" id="btnSpellAll" onclick="window.LessonEngine.spellWholeSentence()">
+            🔤 Đánh vần
+          </button>
+          <button class="ctrl-btn btn-amber" id="btnReplayUser" onclick="window.LessonEngine.replayLastRecognized()">
+            🗣️ Giọng bé
+          </button>
+          <button class="ctrl-btn btn-skip locked" id="btnSkipSentence" onclick="window.LessonEngine.trySkipSentence()">
+            ⏭️ Bỏ qua
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Màn phủ chế độ Ngủ Giả (Fake Sleep OLED) -->
+    <div id="sleepOverlay" class="sleep-overlay hidden" onclick="window.FaceEngine.wakeUp('tap')">
+      <div class="sleep-eyes">z Z z ... (Chạm màn hình hoặc gọi "Hello Robo")</div>
+    </div>
+  </main>
+
+  <!-- ===================================================================== -->
+  <!-- MÀN HÌNH 2: 📖 SỔ HỌC TẬP (32 CHỦ ĐỀ OFFLINE-FIRST)                   -->
+  <!-- ===================================================================== -->
+  <section id="view-library" class="view-screen">
+    <div class="panel-container">
+      <div class="panel-header">
+        <h2>📖 Sổ Học Tập Tiếng Anh (<span id="libTopicCount">0</span> Chủ Đề)</h2>
+        <div class="lib-toolbar">
+          <input type="text" id="libSearchInput" placeholder="🔍 Tìm chủ đề hoặc từ khóa..." oninput="window.AppUI.filterTopics()" />
+          <select id="libOrderMode" onchange="window.LessonEngine.setOrderMode(this.value)">
+            <option value="sequential">🔢 Học theo thứ tự</option>
+            <option value="random">🔀 Học ngẫu nhiên</option>
+            <option value="review">⚠️ Ôn câu hay sai (<span id="reviewCountSpan">0</span>)</option>
+          </select>
+          <select id="libLevelMode" onchange="window.LessonEngine.setDifficultyLevel(this.value)">
+            <option value="easy">🌱 Cấp 1: Cơ bản</option>
+            <option value="medium" selected>🌿 Cấp 2: Giao tiếp</option>
+            <option value="hard">🌳 Cấp 3: Nâng cao</option>
+          </select>
+          <button class="btn-neon btn-cyan" onclick="window.ApiClient.syncAllTopics(true)">🔄 Đồng bộ Server</button>
+        </div>
+      </div>
+      <div id="topicsGrid" class="topics-grid"></div>
+    </div>
+  </section>
+
+  <!-- ===================================================================== -->
+  <!-- MÀN HÌNH 3: ▶️ YOUTUBE KIOSK (CÓ KHÓA PHỤ HUYNH & HẸN GIỜ SAO)        -->
+  <!-- ===================================================================== -->
+  <section id="view-youtube" class="view-screen">
+    <div class="iframe-shell">
+      <div id="youtubeFallback" class="offline-box hidden">
+        <h3>📡 Chưa kết nối được YouTube Thiếu Nhi</h3>
+        <p>Vui lòng kiểm tra Wi-Fi hoặc bấm thử kết nối lại.</p>
+        <button class="btn-neon btn-cyan" onclick="window.AppRouter.reloadIframe('youtube')">🔄 Thử kết nối lại</button>
+      </div>
+      <iframe id="youtubeIframe" title="YouTube Robot" allow="autoplay; encrypted-media" sandbox="allow-scripts allow-same-origin allow-forms"></iframe>
+    </div>
+  </section>
+
+  <!-- ===================================================================== -->
+  <!-- MÀN HÌNH 4: 🎮 GAME (TÍCH HỢP GAME OFFLINE + SERVER GAMES.PHP)        -->
+  <!-- ===================================================================== -->
+  <section id="view-game" class="view-screen">
+    <div class="panel-container game-hub">
+      <div class="panel-header">
+        <h2>🎮 Khu Vực Trò Chơi Tương Tác</h2>
+        <div class="lib-toolbar">
+          <button class="btn-neon btn-cyan" onclick="window.MiniGames.startRPS()">✊✋✌️ Oẳn Tù Tì</button>
+          <button class="btn-neon btn-amber" onclick="window.MiniGames.startShellGame()">🥤 Tìm Ngọc Dưới Cốc</button>
+          <button class="btn-neon btn-green" onclick="window.MiniGames.loadServerGames()">🌐 Kho Game Online</button>
+        </div>
+      </div>
+      <div id="gameArena" class="game-arena">
+        <div class="game-welcome">
+          <p>Chọn một trò chơi phía trên để thi đấu cùng Robot (hỗ trợ cả cảm ứng và 4 nút cứng ESP32)!</p>
+        </div>
+      </div>
+      <iframe id="gameIframe" class="hidden" title="Games Robot" sandbox="allow-scripts allow-same-origin allow-forms"></iframe>
+    </div>
+  </section>
+
+  <!-- ===================================================================== -->
+  <!-- MÀN HÌNH 5: ⚙️ SETTING (ĐIỀU KHIỂN PHẦN CỨNG & GIÁM SÁT PHỤ HUYNH)    -->
+  <!-- ===================================================================== -->
+  <section id="view-settings" class="view-screen">
+    <div class="panel-container">
+      <div class="panel-header">
+        <h2>⚙️ Trung Tâm Điều Khiển & Cài Đặt Robot</h2>
+        <span id="settingsDeviceInfo" class="hud-chip">Bot ID: -- | Nhiệt độ: --°C</span>
+      </div>
+
+      <div class="settings-grid">
+        <!-- Nhóm A: Điều khiển phần cứng trực tiếp (không cần nút cứng) -->
+        <div class="set-card">
+          <h3>🔆 Màn Hình & Âm Thanh Thật</h3>
+          <label>Độ sáng màn hình: <b id="valBrightness">70%</b>
+            <input type="range" id="rangeBrightness" min="5" max="100" value="70" oninput="window.PowerDevice.setManualBrightness(this.value)" />
+          </label>
+          <label>Âm lượng loa hệ thống: <b id="valVolume">80%</b>
+            <input type="range" id="rangeVolume" min="0" max="100" value="80" oninput="window.PowerDevice.setManualVolume(this.value)" />
+          </label>
+          <label>Tốc độ giọng đọc tiếng Anh:
+            <select id="selectTtsRate" onchange="window.AppUI.saveTtsRate(this.value)">
+              <option value="0.75">🐢 Chậm (0.75x - Cho bé mới học)</option>
+              <option value="0.95" selected>🚶 Chuẩn (0.95x - Tự nhiên)</option>
+              <option value="1.15">🐇 Nhanh (1.15x - Người lớn)</option>
+            </select>
+          </label>
+          <div class="btn-row">
+            <button class="btn-neon btn-cyan" onclick="window.AppUI.testHardwareAudio()">🔊 Test Loa</button>
+            <button class="btn-neon btn-green" onclick="window.AppUI.testHardwareMic()">🎙️ Test Mic</button>
+          </div>
+        </div>
+
+        <!-- Nhóm B: Mạng Wi-Fi, Bluetooth ESP32 & Server -->
+        <div class="set-card">
+          <h3>📡 Kết Nối Mạng & Phần Cứng</h3>
+          <div class="btn-col">
+            <button class="btn-neon btn-cyan" onclick="window.NativeBridge.openWifiPanel()">📶 Chọn Mạng Wi-Fi (Android)</button>
+            <button class="btn-neon btn-purple" onclick="window.AppRouter.openSettingsSub('bluetooth')">🔵 Bluetooth & Mạch ESP32</button>
+            <button class="btn-neon btn-amber" onclick="window.AppRouter.openSettingsSub('server')">🌐 Cấu Hình Địa Chỉ Server API</button>
+          </div>
+        </div>
+
+        <!-- Nhóm C: Kiểm soát Phụ huynh (Yêu cầu mã PIN phụ huynh) -->
+        <div class="set-card">
+          <h3>👨‍👩‍👧 Kiểm Soát Phụ Huynh</h3>
+          <div class="btn-col">
+            <button class="btn-neon btn-amber" onclick="window.AppRouter.openParentalGate('parental')">🔒 Khóa YouTube/Game & Tích Sao</button>
+            <button class="btn-neon btn-green" onclick="window.AppRouter.openParentalGate('monitor')">📊 Nhật Ký Học & Camera Từ Xa</button>
+            <button class="btn-neon btn-cyan" onclick="window.AppRouter.openSettingsSub('profiles')">👤 Hồ Sơ Người Học & Tên Robot</button>
+          </div>
+        </div>
+
+        <!-- Nhóm D: Bảo mật Kiosk & Nhà sản xuất -->
+        <div class="set-card">
+          <h3>🛡️ Bảo Mật Kiosk & Hệ Thống</h3>
+          <div class="btn-col">
+            <button class="btn-neon btn-rose" onclick="window.AppRouter.openSettingsSub('security')">🔐 Chế Độ Kiosk & PIN Nhà Sản Xuất</button>
+            <button class="btn-neon btn-cyan" onclick="window.PowerDevice.toggleFakeSleep()">🌙 Vào Chế Độ Ngủ Ngay</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SUB-PANEL CẤP 2 (92% Diện tích, duy nhất 1 lớp, nút X lớn góc phải) -->
+    <div id="settingsSubModal" class="subpanel-backdrop hidden">
+      <div class="subpanel-box">
+        <div class="subpanel-head">
+          <h3 id="subpanelTitle">Chi tiết cài đặt</h3>
+          <button class="subpanel-close" onclick="window.AppRouter.closeSettingsSub()">✕</button>
+        </div>
+        <div id="subpanelBody" class="subpanel-body"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================================================================== -->
+  <!-- MÀN HÌNH 6: ❗ HƯỚNG DẪN SỬ DỤNG TRỰC QUAN                            -->
+  <!-- ===================================================================== -->
+  <section id="view-guide" class="view-screen">
+    <div class="panel-container">
+      <div class="panel-header">
+        <h2>❗ Hướng Dẫn Sử Dụng Robot 2027</h2>
+      </div>
+      <div class="guide-grid">
+        <div class="guide-card">
+          <h3>1. Đánh Thức & Ra Lệnh Giọng Nói</h3>
+          <ul>
+            <li><b>Đánh thức robot:</b> Nói <i>"Hello Robo"</i>, <i>"Hello"</i> hoặc gọi tên riêng của robot.</li>
+            <li><b>Chuyển trang nhanh:</b> Nói <i>"Xem YouTube"</i>, <i>"Chơi game"</i> hoặc <i>"Học tiếng Anh"</i>.</li>
+            <li><b>Ngắt lời (Barge-in):</b> Chạm vào màn hình bất kỳ lúc nào để ngắt giọng đọc và nói ngay.</li>
+          </ul>
+        </div>
+        <div class="guide-card">
+          <h3>2. Ý Nghĩa Thanh 6 Biểu Tượng</h3>
+          <ul>
+            <li><b>📖 Sổ học:</b> Chọn 1 trong 32 chủ đề, chọn học thứ tự hoặc ngẫu nhiên.</li>
+            <li><b>🤖 Robot:</b> Khuôn mặt cảm xúc & luyện phát âm Karaoke từng từ.</li>
+            <li><b>▶️ YouTube & 🎮 Game:</b> Giải trí (mở khóa trong Setting phụ huynh).</li>
+            <li><b>⚙️ Setting:</b> Chỉnh độ sáng, âm lượng, Wi-Fi, Bluetooth & Giám sát.</li>
+          </ul>
+        </div>
+        <div class="guide-card">
+          <h3>3. Mẹo Luyện Phát Âm & Bảo Vệ Pin</h3>
+          <ul>
+            <li>Chạm trực tiếp vào <b>từng từ tiếng Anh</b> trên màn hình để nghe đánh vần (R-A-B-B-I-T).</li>
+            <li>Từ đọc đúng hiện <span style="color:#00e676">màu xanh</span>, từ sai hiện <span style="color:#ff4d6d">màu đỏ</span>. Sai quá 3 lần sẽ mở nút qua câu mới.</li>
+            <li><b>Bảo vệ pin 24/24:</b> Giữ pin trong ngưỡng <b>50% – 90%</b>. Dưới 50% tự bật Chế độ Sinh tồn tiết kiệm điện.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Nạp các module JS tách biệt theo đúng thứ tự phụ thuộc -->
+  <script src="js/config.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/native_bridge.js"></script>
+  <script src="js/api_client.js"></script>
+  <script src="js/hardware_bridge.js"></script>
+  <script src="js/face_engine.js"></script>
+  <script src="js/lesson_engine.js"></script>
+  <script src="js/voice_assistant.js"></script>
+  <script src="js/power_device.js"></script>
+  <script src="js/mini_games.js"></script>
+  <script src="js/view_router.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

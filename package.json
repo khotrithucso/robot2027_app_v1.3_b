@@ -1,0 +1,17 @@
+{
+  "name": "robot2027-companion",
+  "version": "1.3.0",
+  "description": "Robot 2027 App v1.3 - Kiosk English Learning & Interactive Companion",
+  "main": "www/index.html",
+  "scripts": {
+    "cap:sync": "npx cap sync android",
+    "cap:open": "npx cap open android"
+  },
+  "dependencies": {
+    "@capacitor/android": "^6.1.2",
+    "@capacitor/core": "^6.1.2"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^6.1.2"
+  }
+}
