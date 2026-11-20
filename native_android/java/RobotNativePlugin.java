@@ -495,7 +495,8 @@ public class RobotNativePlugin extends Plugin implements SensorEventListener {
             if (wm != null && wm.isWifiEnabled()) {
                 WifiInfo info = wm.getConnectionInfo();
                 if (info != null && info.getSSID() != null) {
-                    wifiSsid = info.getSSID().replace(""", "");
+                    wifiSsid = info.getSSID().replace("\"", "");
+
                 }
             }
         } catch (Exception ignored) {}
